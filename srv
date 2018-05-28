@@ -1,0 +1,11 @@
+#!/bin/sh
+
+
+if [ x"$1" = x"fifo" ]; then
+	rm -f /tmp/cli-srv /tmp/srv-cli
+	mkfifo /tmp/cli-srv; mkfifo /tmp/srv-cli
+	echo fifo
+	$HOME/Downloads/u9fs/u9fs -nz -a none -D </tmp/cli-srv >/tmp/srv-cli
+else
+	sudo $PLAN9/bin/listen1 'tcp!localhost!9999' $HOME/Downloads/u9fs/u9fs -nz -a none -D
+fi
