@@ -53,10 +53,6 @@ create tx# 0 ,
 : txcur   ( -- a )  txbuf tx# @ + ;
 : tx+     ( n -- )  tx# +! ;
 
-: tx(  ( -- )      4 tx# ! ;
-: )tx  ( -- a n )  tx# @ txbuf 4!  txbuf tx# @ ;
-
-
 : tx1!  ( n -- )    txcur 1!  1 tx+ ;
 : tx2!  ( n -- )    txcur 2!  2 tx+ ;
 : tx4!  ( n -- )    txcur 4!  4 tx+ ;
@@ -90,6 +86,11 @@ create curfid 0 ,
 : newfid  ( -- n )
   curfid @  dup 1 + NOFID mod  curfid ! ;
 
+
+: tx(  ( type -- )  4 tx# !  tx1!  tag tx2! ;
+: )tx  ( -- a n )   tx# @ txbuf 4!  txbuf tx# @ ;
+
+
 \ Qid
 13 constant /qid
 : qtype     ( a -- n )  1@ ;
@@ -116,27 +117,24 @@ create curfid 0 ,
 
 ( 9P messages )
 
-: Tversion  ( -- a n )  tx( 100 tx1!  tag tx2!  8192 tx4! s" 9P2000" txs! )tx ;
+: Tversion  ( -- a n )  100 tx( 8192 tx4! s" 9P2000" txs! )tx ;
 
 : Rversion  ( n -- a n msize )
   101 rxerror? if 0 0 0 exit then
   rxbuf body dup push  4 + s@  pop 4@ ;
 
 : Tattach  ( uname aname -- a n fid )
-  tx(
-    104 tx1!  tag tx2!
+  104 tx(
     newfid dup push tx4!
     NOFID tx4!  push push txs! pop pop txs!
-    pop                                                                                                 
-  )tx ;
+    pop                                                                                )tx ;
 
 : Rattach  ( n -- a )
   105 rxerror? if 0 exit then
   rxbuf body ;
 
 : Twalk  ( 'name #name ... #names fid -- a n fid' )
-  tx(
-    110 tx1!  tag tx2!
+  110 tx(
     tx4!  newfid dup push tx4!
     dup tx2!  for txs! next
   )tx  pop ;
@@ -146,3 +144,4 @@ create curfid 0 ,
 : Rwalk  ( n -- a nwqid )
   111 rxerror? if 0 exit then
   rxbuf body  dup 2 +  swap 2@ ;
+
