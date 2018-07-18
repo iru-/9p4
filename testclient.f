@@ -45,4 +45,9 @@ hfid 0 Topen write  read Ropen
 ." iounit: " . cr
 ." qid   : " .qid cr
 
+hfid 0 32 Tread write  read Rread
+." #read: " dup . cr
+." --- " cr
+type cr
+." --- " cr
 bye

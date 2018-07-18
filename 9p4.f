@@ -127,7 +127,8 @@ create curfid 0 ,
   104 tx(
     newfid dup push tx4!
     NOFID tx4!  push push txs! pop pop txs!
-    pop                                                                                )tx ;
+    pop
+  )tx ;
 
 : Rattach  ( n -- a )
   105 rxerror? if 0 exit then
@@ -151,3 +152,10 @@ create curfid 0 ,
 : Ropen  ( n -- 'qid iounit )
   113 rxerror? if 0 0 exit then
   rxbuf body  dup /qid + 4@ ;
+
+: Tread  ( fid offset count -- a n )
+  116 tx( push push tx4! pop tx8! pop tx4! )tx ;
+
+: Rread  ( n -- data count )
+  117 rxerror? if 0 0 exit then
+  rxbuf body  dup 4@ push  4 +  pop ;
