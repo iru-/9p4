@@ -145,3 +145,9 @@ create curfid 0 ,
   111 rxerror? if 0 exit then
   rxbuf body  dup 2 +  swap 2@ ;
 
+: Topen  ( fid mode -- a n )
+  112 tx( swap tx4! tx1! )tx ;
+
+: Ropen  ( n -- 'qid iounit )
+  113 rxerror? if 0 0 exit then
+  rxbuf body  dup /qid + 4@ ;
