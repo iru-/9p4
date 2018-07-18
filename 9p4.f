@@ -96,8 +96,13 @@ create curfid 0 ,
 : qversion  ( a -- n )  1 + 4@ ;
 : qpath     ( a -- n )  5 + 8@ ;
 : qnew      ( a -- a )  /qid allocate throw  dup push  /qid move  pop ;
+
+: .qfield    ( n -- )  s>d <# #s #> type ;
+: .qtype     ( a -- )  qtype    .qfield ;
+: .qversion  ( a -- )  qversion .qfield ;
+: .qpath     ( a -- )  qpath    .qfield ;
 : .qid  ( a -- )
-  ." ( "  dup qpath hex . decimal  dup qversion .  dup qtype . ." )" ;
+  dup dup  ." (" hex .qpath decimal space .qversion space .qtype ." )" ;
 
 \ Addresses valid for every R-message
 : size@  ( a -- a )  4@ ;
@@ -114,7 +119,7 @@ create curfid 0 ,
 : Tversion  ( -- a n )  tx( 100 tx1!  tag tx2!  8192 tx4! s" 9P2000" txs! )tx ;
 
 : Rversion  ( n -- a n msize )
-  101 rxerror? if drop 0 0 0 exit then drop
+  101 rxerror? if 0 0 0 exit then
   rxbuf body dup push  4 + s@  pop 4@ ;
 
 : Tattach   ( uname aname -- a n fid )
@@ -126,5 +131,5 @@ create curfid 0 ,
   )tx ;
 
 : Rattach  ( n -- a )
-  105 rxerror? if drop 0 exit then drop
+  105 rxerror? if 0 exit then
   rxbuf body ;
