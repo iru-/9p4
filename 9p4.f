@@ -101,7 +101,7 @@ create curfid 0 ,
 : .qtype     ( a -- )  qtype    .qfield ;
 : .qversion  ( a -- )  qversion .qfield ;
 : .qpath     ( a -- )  qpath    .qfield ;
-: .qid  ( a -- )
+: .qid       ( a -- )
   dup dup  ." (" hex .qpath decimal space .qversion space .qtype ." )" ;
 
 \ Addresses valid for every R-message
@@ -122,7 +122,7 @@ create curfid 0 ,
   101 rxerror? if 0 0 0 exit then
   rxbuf body dup push  4 + s@  pop 4@ ;
 
-: Tattach   ( uname aname -- a n fid )
+: Tattach  ( uname aname -- a n fid )
   tx(
     104 tx1!  tag tx2!
     newfid dup push tx4!
@@ -133,3 +133,16 @@ create curfid 0 ,
 : Rattach  ( n -- a )
   105 rxerror? if 0 exit then
   rxbuf body ;
+
+: Twalk  ( 'name #name ... #names fid -- a n fid' )
+  tx(
+    110 tx1!  tag tx2!
+    tx4!  newfid dup push tx4!
+    dup tx2!  for txs! next
+  )tx  pop ;
+
+: clonefid  ( fid -- a n fid' )  0 swap Twalk ;
+
+: Rwalk  ( n -- a nwqid )
+  111 rxerror? if 0 exit then
+  rxbuf body  dup 2 +  swap 2@ ;
