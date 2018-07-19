@@ -153,9 +153,19 @@ create curfid 0 ,
   113 rxerror? if 0 0 exit then
   rxbuf body  dup /qid + 4@ ;
 
+: rw  ( fid offset count -- )
+  push push tx4! pop tx8! pop tx4! ;
+
 : Tread  ( fid offset count -- a n )
-  116 tx( push push tx4! pop tx8! pop tx4! )tx ;
+  116 tx( rw )tx ;
 
 : Rread  ( n -- data count )
   117 rxerror? if 0 0 exit then
   rxbuf body  dup 4@ push  4 +  pop ;
+
+: Twrite  ( fid offset data count -- a n )
+  tuck push push  118 tx( rw  pop txcur r@ move  pop tx+ )tx ;
+
+: Rwrite  ( n -- count )
+  119 rxerror? if 0 exit then
+  rxbuf body 4@ ;
