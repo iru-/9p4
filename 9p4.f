@@ -174,9 +174,18 @@ create curfid 0 ,
         swap tx4! tx1!
     ]tx ;
 
-: Ropen ( n -> 'qid iounit )
-    113 rxerror? if  0 0 exit  then
+: Tcreate ( fid 'name #name perm mode -> a u )
+    114 tx[
+        >r >r 2>r
+        tx4!  2r> txs!  r> tx4!  r> tx1!
+    ]tx ;
+
+: Ropencreate ( n type -> 'qid iounit )
+    rxerror? if  0 0 exit  then
     rxbuf 9p-body  dup /qid + be4@ ;
+
+: Ropen ( n -> 'qid iounit )      113 Ropencreate ;
+: Rcreate ( n -> 'qid iounit )    115 Ropencreate ;
 
 : rw ( fid offset count -> )
     >r >r tx4!  r> tx8!  r> tx4! ;

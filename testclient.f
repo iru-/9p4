@@ -64,6 +64,17 @@ type cr
 ." --- " cr
 
 cr
+-1 value dirfid
+s" /tmp" 1 rootfid Twalk write  to dirfid
+." dir fid: " dirfid . cr  read Rwalk  -1 = s" can't walk to dir" ?abort  drop
+
+dirfid s" aaa" 420 1 Tcreate write  read Rcreate
+over 0 = s" can't create file" ?abort
+." created!" cr
+." iounit: " . cr
+." qid   : " .qid cr
+
+cr
 -1 value wfid
 s" /tmp/aaa" 1 rootfid Twalk write  to wfid
 ." write fid: " wfid . cr  read Rwalk  -1 = s" can't walk to file" ?abort  drop
