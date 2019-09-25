@@ -1,13 +1,23 @@
 require unix/socket.fs
 require 9p4.f
 
+warnings off
 0 value mysock
-: connect  ( a n port -- )  open-socket to mysock ;
-: write    ( a n -- )       mysock write-socket ;
-: read     ( -- n )         mysock rx read-socket nip ;
+: connect ( a u port -> )    open-socket to mysock ;
+: write ( a u -> )           mysock write-socket ;
+: read ( -> n )              mysock 9p-rxbuf read-socket nip ;
 
-: .qids    ( a n -- )
-  for dup .qid space /qid + next drop ;
+: ?abort ( flag a u -> )
+    >r >r if
+        ." error: "  r> r> type abort
+    then
+    r> drop r> drop ;
+
+: .qids ( a u -> )
+    1- for
+        dup  .qid space  /qid +
+    next
+    drop ;
 
 s" 127.0.0.1" 9999 connect
 
@@ -23,19 +33,20 @@ s" iru" s" " Tattach write to rootfid  read Rattach
 ." root qid: " .qid cr
 
 cr
-rootfid clonefid  ." root clone fid: " . cr
-write read Rwalk  ." #qids walked  : " . cr
+rootfid clonefid write
+." root clone fid: " . cr  read Rwalk
+." #qids walked  : " . cr  drop  \ drop pointer to array of qids
 
 cr
 -1 value rfid
-s" /etc/hosts" 1 rootfid Twalk  dup to rfid
-." read fid    : " . cr   write read Rwalk
+s" /etc/hosts" 1 rootfid Twalk write  to rfid
+." read fid    : " rfid . cr  read Rwalk
 ." #qids walked: " dup . cr
 ." qids        : " .qids cr
 
 cr
-s" hosts" s" etc" 2 rootfid Twalk
-." final fid   : " . cr  write read Rwalk
+s" hosts" s" etc" 2 rootfid Twalk write
+." final fid   : " . cr  read Rwalk
 ." #qids walked: " dup . cr
 ." qids        : " .qids cr
 
@@ -45,6 +56,7 @@ rfid 0 Topen write  read Ropen
 ." iounit: " . cr
 ." qid   : " .qid cr
 
+cr
 rfid 0 32 Tread write  read Rread
 ." #read: " dup . cr
 ." --- " cr
@@ -53,9 +65,10 @@ type cr
 
 cr
 -1 value wfid
-s" /tmp/aaa" 1 rootfid Twalk  dup to wfid
-." write fid: " . cr  write read Rwalk drop drop
-wfid 1 Topen write read Ropen drop drop
+s" /tmp/aaa" 1 rootfid Twalk write  to wfid
+." write fid: " wfid . cr  read Rwalk  -1 = s" can't walk to file" ?abort  drop
+
+wfid 1 Topen write  read Ropen  drop drop
 wfid 0 s" written by 9p4" Twrite write  read Rwrite
 ." #written : " . cr
 
