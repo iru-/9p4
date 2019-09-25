@@ -207,3 +207,6 @@ create curfid 0 ,
 : Rwrite ( n -> count )
     119 rxerror? if  0 exit  then
     rxbuf 9p-body be4@ ;
+
+: Tclunk ( fid -> a u )    120 tx[ tx4! ]tx ;
+: Rclunk ( n -> )          121 rxerror? if exit then ;

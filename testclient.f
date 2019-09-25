@@ -74,6 +74,8 @@ over 0 = s" can't create file" ?abort
 ." iounit: " . cr
 ." qid   : " .qid cr
 
+dirfid Tclunk write  read Rclunk
+
 cr
 -1 value wfid
 s" /tmp/aaa" 1 rootfid Twalk write  to wfid
