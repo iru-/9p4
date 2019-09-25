@@ -85,4 +85,7 @@ wfid 1 Topen write  read Ropen  drop drop
 wfid 0 s" written by 9p4" Twrite write  read Rwrite
 ." #written : " . cr
 
+wfid Tremove write  read Rremove
+
+rootfid Tclunk write
 bye

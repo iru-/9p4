@@ -208,5 +208,11 @@ create curfid 0 ,
     119 rxerror? if  0 exit  then
     rxbuf 9p-body be4@ ;
 
-: Tclunk ( fid -> a u )    120 tx[ tx4! ]tx ;
-: Rclunk ( n -> )          121 rxerror? if exit then ;
+: Tclunkremove ( fid type -> a u )    tx[ tx4! ]tx ;
+: Rclunkremove ( n type -> )          rxerror? if exit then ;
+
+: Tclunk ( fid -> a u )    120 Tclunkremove ;
+: Rclunk ( n -> )          121 Rclunkremove ;
+
+: Tremove ( fid -> a u )    122 Tclunkremove ;
+: Rremove ( fid -> a u )    123 Rclunkremove ;
