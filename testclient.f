@@ -14,9 +14,9 @@ warnings off
     r> drop r> drop ;
 
 : .qfield ( n -> )      s>d <# #s #> type ;
-: .qtype  ( a -> )      9p-qtype .qfield ;
-: .qversion ( a -> )    9p-qversion  decimal .qfield ;
-: .qpath ( a -> )       9p-qpath  hex .qfield ;
+: .qtype  ( a -> )      qid-type be1@  .qfield ;
+: .qversion ( a -> )    qid-version be4@  decimal .qfield ;
+: .qpath ( a -> )       qid-path be8@  hex .qfield ;
 : .qid ( a -> )
     base @ >r
     ." ("  dup .qpath  space  dup .qversion  space .qtype  ." )"

@@ -101,13 +101,12 @@ create curfid 0 ,
 : tx[ ( type -> )   4 tx# !  tx1!  tag tx2! ;
 : ]tx ( -> a u )    tx# @  txbuf be4!  txbuf tx# @ ;
 
-13 constant /qid
-: 9p-qtype ( a -> n )       be1@ ;
-: 9p-qversion ( a -> n )    1 +  be4@ ;
-: 9p-qpath ( a -> n )       5 +  be8@ ;
-: 9p-qnew ( a -> a' )
-    /qid allocate throw
-    dup >r  /qid move  r> ;
+struct
+    1 1 field qid-type
+    1 4 field qid-version
+    1 8 field qid-path
+end-struct %qid
+%qid nip constant /qid
 
 \ Addresses valid for every R-message
 : 9p-size@ ( a -> msg-size )    be4@ ;
