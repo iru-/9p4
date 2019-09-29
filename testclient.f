@@ -13,6 +13,15 @@ warnings off
     then
     r> drop r> drop ;
 
+: .qfield ( n -> )      s>d <# #s #> type ;
+: .qtype  ( a -> )      9p-qtype .qfield ;
+: .qversion ( a -> )    9p-qversion  decimal .qfield ;
+: .qpath ( a -> )       9p-qpath  hex .qfield ;
+: .qid ( a -> )
+    base @ >r
+    ." ("  dup .qpath  space  dup .qversion  space .qtype  ." )"
+    r> base ! ;
+
 : .qids ( a u -> )
     1- for
         dup  .qid space  /qid +

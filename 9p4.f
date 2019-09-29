@@ -109,20 +109,11 @@ create curfid 0 ,
     /qid allocate throw
     dup >r  /qid move  r> ;
 
-: .qfield ( n -> )      s>d <# #s #> type ;
-: .qtype  ( a -> )      9p-qtype .qfield ;
-: .qversion ( a -> )    9p-qversion  decimal .qfield ;
-: .qpath ( a -> )       9p-qpath  hex .qfield ;
-: .qid ( a -> )
-    base @ >r
-    ." ("  dup .qpath  space  dup .qversion  space .qtype  ." )"
-    r> base ! ;
-
 \ Addresses valid for every R-message
-: 9p-size@ ( a -> a' )    be4@ ;
-: 9p-type@ ( a -> a' )    4 + be1@ ;
-: 9p-tag@  ( a -> a' )    5 + be2@ ;
-: 9p-body ( a -> a' )     7 + ;
+: 9p-size@ ( a -> msg-size )    be4@ ;
+: 9p-type@ ( a -> msg-type )    4 + be1@ ;
+: 9p-tag@  ( a -> msg-tag )     5 + be2@ ;
+: 9p-body ( a -> 'msg-body )    7 + ;
 
 \ Error on short reads or wrong response type
 : rxerror? ( msg-size type -> flag )
