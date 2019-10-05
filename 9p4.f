@@ -108,6 +108,23 @@ struct
 end-struct %qid
 %qid nip constant /qid
 
+struct
+    1 2  field stat-size
+    1 2  field stat-type
+    1 4  field stat-dev
+    %qid field stat-qid
+    1 4  field stat-mode
+    1 4  field stat-atime
+    1 4  field stat-mtime
+    1 8  field stat-length
+end-struct %stat-base
+%stat-base nip constant /stat-base
+
+: stat-name ( a -> 'name )    /stat-base + ;
+: stat-uid ( a -> 'uid )      stat-name 9p-s@ + ;
+: stat-gid ( a -> 'gid )      stat-uid  9p-s@ + ;
+: stat-muid ( a -> 'muid )    stat-gid  9p-s@ + ;
+
 \ Addresses valid for every R-message
 : 9p-size@ ( a -> msg-size )    be4@ ;
 : 9p-type@ ( a -> msg-type )    4 + be1@ ;
@@ -206,3 +223,9 @@ end-struct %qid
 
 : Tremove ( fid -> a u )    122 Tclunkremove ;
 : Rremove ( fid -> a u )    123 Rclunkremove ;
+
+: Tstat ( fid -> a u )    124 tx[ tx4! ]tx ;
+
+: Rstat ( n -> 'stat len )
+    125 rxerror? if  0 exit  then
+    rxbuf 9p-body  dup 2 +  swap be2@ ;

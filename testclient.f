@@ -28,6 +28,24 @@ warnings off
     next
     drop ;
 
+: .mode ( u -> )    base @ >r    8 base !  .    r> base ! ;
+
+: .stat ( 'stat len -> )
+    drop
+    ." size  : "  dup stat-size   be2@ . cr
+    ." type  : "  dup stat-type   be2@ . cr
+    ." dev   : "  dup stat-dev    be4@ . cr
+    ." qid   : "  dup stat-qid         .qid  cr
+    ." mode  : "  dup stat-mode   be4@ .mode cr
+    ." atime : "  dup stat-atime  be4@ . cr
+    ." mtime : "  dup stat-mtime  be4@ . cr
+    ." length: "  dup stat-length be8@ . cr
+    ." name  : "  dup stat-name   9p-s@ type cr
+    ." uid   : "  dup stat-uid    9p-s@ type cr
+    ." gid   : "  dup stat-gid    9p-s@ type cr
+    ." muid  : "      stat-muid   9p-s@ type cr ;
+
+
 s" 127.0.0.1" 9999 connect
 
 Tversion write
@@ -94,6 +112,8 @@ wfid 1 Topen write  read Ropen  drop drop
 wfid 0 s" written by 9p4" Twrite write  read Rwrite
 ." #written : " . cr
 
+cr
+wfid Tstat write  read Rstat .stat
 wfid Tremove write  read Rremove
 
 rootfid Tclunk write
