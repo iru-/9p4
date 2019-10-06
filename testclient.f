@@ -113,8 +113,30 @@ wfid 0 s" written by 9p4" Twrite write  read Rwrite
 ." #written : " . cr
 
 cr
-wfid Tstat write  read Rstat .stat
-wfid Tremove write  read Rremove
+wfid Tstat write  read Rstat over swap .stat
+constant wstat
 
+\ change name, mode and group of the file
+stat-dont-touch wstat stat-type be2!
+stat-dont-touch wstat stat-dev  be4!
+
+stat-dont-touch wstat stat-qid qid-type be1!
+stat-dont-touch wstat stat-qid qid-version be4!
+stat-dont-touch wstat stat-qid qid-path be8!
+
+421 wstat stat-mode be4!
+stat-dont-touch wstat stat-atime be4!
+stat-dont-touch wstat stat-mtime be4!
+stat-dont-touch wstat stat-length be8!
+
+s" abc" wstat stat-name 9p-s!
+stat-s-dont-touch wstat stat-uid 9p-s!
+s" wheel"  wstat stat-gid  9p-s!
+stat-s-dont-touch wstat stat-muid 9p-s!
+
+wstat wfid Twstat write read Rwstat
+wfid Tstat write  read Rstat cr .stat
+
+wfid Tremove write  read Rremove
 rootfid Tclunk write
 bye

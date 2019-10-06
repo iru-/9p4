@@ -125,6 +125,19 @@ stat-base% nip constant /stat-base
 : stat-gid ( a -> 'gid )      stat-uid  9p-s@ + ;
 : stat-muid ( a -> 'muid )    stat-gid  9p-s@ + ;
 
+\ compute stat structure size without the size field itself
+: get-stat-size ( 'stat -> size )
+    dup  stat-muid 9p-s@ +  swap -  2 - ;
+
+: set-stat-size ( 'stat -> size )
+    dup  get-stat-size   dup >r
+    swap stat-size be2!  r> ;
+
+: stat>tx ( 'stat -> )    dup set-stat-size  2 +  dup tx2!  >tx ;
+
+0 0 2constant stat-s-dont-touch
+-1   constant stat-dont-touch
+
 
 \ Addresses valid for every R-message
 : 9p-size@ ( a -> msg-size )    be4@ ;
@@ -216,17 +229,22 @@ stat-base% nip constant /stat-base
     119 rxerror? if  0 exit  then
     rxbuf 9p-body be4@ ;
 
+
+: Rminimal ( n type -> )    rxerror? if exit then ;
+
 : Tclunkremove ( fid type -> a u )    tx[ tx4! ]tx ;
-: Rclunkremove ( n type -> )          rxerror? if exit then ;
 
 : Tclunk ( fid -> a u )    120 Tclunkremove ;
-: Rclunk ( n -> )          121 Rclunkremove ;
+: Rclunk ( n -> )          121 Rminimal ;
 
 : Tremove ( fid -> a u )    122 Tclunkremove ;
-: Rremove ( fid -> a u )    123 Rclunkremove ;
+: Rremove ( fid -> a u )    123 Rminimal ;
 
 : Tstat ( fid -> a u )    124 tx[ tx4! ]tx ;
 
 : Rstat ( n -> 'stat len )
     125 rxerror? if  0 exit  then
     rxbuf 9p-body  dup 2 +  swap be2@ ;
+
+: Twstat ( 'stat fid -> len )    126 tx[  tx4! stat>tx  ]tx ;
+: Rwstat ( n -> )                127 Rminimal ;
