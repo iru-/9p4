@@ -47,8 +47,8 @@
     r@ 48 rshift  swap c!+
     r> 56 rshift  swap c! ;
 
-: 9p-s! ( src n dst -> )    2dup be2!  2 + swap move ;
-
+: 9p-s! ( src u dst -> )    2dup be2!  2 + swap move ;
+: 9p-s, ( src u dst -> )    over 2 + allot  9p-s! ;
 
 ( Transmission/reception buffers )
 8192 constant /buf
@@ -105,25 +105,26 @@ struct
     1 1 field qid-type
     1 4 field qid-version
     1 8 field qid-path
-end-struct %qid
-%qid nip constant /qid
+end-struct qid%
+qid% nip constant /qid
 
 struct
     1 2  field stat-size
     1 2  field stat-type
     1 4  field stat-dev
-    %qid field stat-qid
+    qid% field stat-qid
     1 4  field stat-mode
     1 4  field stat-atime
     1 4  field stat-mtime
     1 8  field stat-length
-end-struct %stat-base
-%stat-base nip constant /stat-base
+end-struct stat-base%
+stat-base% nip constant /stat-base
 
 : stat-name ( a -> 'name )    /stat-base + ;
 : stat-uid ( a -> 'uid )      stat-name 9p-s@ + ;
 : stat-gid ( a -> 'gid )      stat-uid  9p-s@ + ;
 : stat-muid ( a -> 'muid )    stat-gid  9p-s@ + ;
+
 
 \ Addresses valid for every R-message
 : 9p-size@ ( a -> msg-size )    be4@ ;
