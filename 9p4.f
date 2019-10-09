@@ -152,7 +152,7 @@ stat-base% nip constant /stat-base
 ( 9P messages )
 : Tversion ( -> a u )    100 tx[ 8192 tx4! s" 9P2000" txs! ]tx ;
 
-: Rversion ( msg-size -> a u msize )
+: Rversion ( n -> a u msize )
     101 rxerror? if  0 0 0 exit  then
     rxbuf 9p-body  dup >r
     4 + 9p-s@
@@ -167,7 +167,7 @@ stat-base% nip constant /stat-base
         r>
     ]tx ;
 
-: Rattach ( msg-size -> 'qid )
+: Rattach ( n -> 'qid )
     105 rxerror? if  0 exit  then
     rxbuf 9p-body ;
 
@@ -186,7 +186,7 @@ stat-base% nip constant /stat-base
 
 : clonefid ( fid -> newfid a u )    0 swap Twalk ;
 
-: Rwalk ( msg->size -> 'qids #qids )
+: Rwalk ( n -> 'qids #qids )
     111 rxerror? if  0 -1 exit  then
     rxbuf 9p-body  dup 2 +  swap le2@ ;
 
