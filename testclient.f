@@ -14,9 +14,9 @@ warnings off
     r> drop r> drop ;
 
 : .qfield ( n -> )      s>d <# #s #> type ;
-: .qtype  ( a -> )      qid-type be1@  .qfield ;
-: .qversion ( a -> )    qid-version be4@  decimal .qfield ;
-: .qpath ( a -> )       qid-path be8@  hex .qfield ;
+: .qtype  ( a -> )      qid-type le1@  .qfield ;
+: .qversion ( a -> )    qid-version le4@  decimal .qfield ;
+: .qpath ( a -> )       qid-path le8@  hex .qfield ;
 : .qid ( a -> )
     base @ >r
     ." ("  dup .qpath  space  dup .qversion  space .qtype  ." )"
@@ -32,14 +32,14 @@ warnings off
 
 : .stat ( 'stat len -> )
     drop
-    ." size  : "  dup stat-size   be2@ . cr
-    ." type  : "  dup stat-type   be2@ . cr
-    ." dev   : "  dup stat-dev    be4@ . cr
+    ." size  : "  dup stat-size   le2@ . cr
+    ." type  : "  dup stat-type   le2@ . cr
+    ." dev   : "  dup stat-dev    le4@ . cr
     ." qid   : "  dup stat-qid         .qid  cr
-    ." mode  : "  dup stat-mode   be4@ .mode cr
-    ." atime : "  dup stat-atime  be4@ . cr
-    ." mtime : "  dup stat-mtime  be4@ . cr
-    ." length: "  dup stat-length be8@ . cr
+    ." mode  : "  dup stat-mode   le4@ .mode cr
+    ." atime : "  dup stat-atime  le4@ . cr
+    ." mtime : "  dup stat-mtime  le4@ . cr
+    ." length: "  dup stat-length le8@ . cr
     ." name  : "  dup stat-name   9p-s@ type cr
     ." uid   : "  dup stat-uid    9p-s@ type cr
     ." gid   : "  dup stat-gid    9p-s@ type cr
@@ -117,17 +117,17 @@ wfid Tstat write  read Rstat over swap .stat
 constant wstat
 
 \ change name, mode and group of the file
-stat-dont-touch wstat stat-type be2!
-stat-dont-touch wstat stat-dev  be4!
+stat-dont-touch wstat stat-type le2!
+stat-dont-touch wstat stat-dev  le4!
 
-stat-dont-touch wstat stat-qid qid-type be1!
-stat-dont-touch wstat stat-qid qid-version be4!
-stat-dont-touch wstat stat-qid qid-path be8!
+stat-dont-touch wstat stat-qid qid-type le1!
+stat-dont-touch wstat stat-qid qid-version le4!
+stat-dont-touch wstat stat-qid qid-path le8!
 
-421 wstat stat-mode be4!
-stat-dont-touch wstat stat-atime be4!
-stat-dont-touch wstat stat-mtime be4!
-stat-dont-touch wstat stat-length be8!
+421 wstat stat-mode le4!
+stat-dont-touch wstat stat-atime le4!
+stat-dont-touch wstat stat-mtime le4!
+stat-dont-touch wstat stat-length le8!
 
 s" abc" wstat stat-name 9p-s!
 stat-s-dont-touch wstat stat-uid 9p-s!

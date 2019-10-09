@@ -1,17 +1,17 @@
 : c!+ ( c a -> a+1 )    swap over  c!  1+ ;
 
 ( Format conversion )
-: be1@ ( a -> n )    c@ ;
-: be2@ ( a -> n )    c@+ swap  c@ 8 lshift or ;
+: le1@ ( a -> n )    c@ ;
+: le2@ ( a -> n )    c@+ swap  c@ 8 lshift or ;
 
-: be4@ ( a -> n )
+: le4@ ( a -> n )
     c@+ swap
     c@+  8 lshift  swap
     c@+ 16 lshift  swap
     c@  24 lshift
     or or or ;
 
-: be8@ ( a -> n )
+: le8@ ( a -> n )
     c@+ swap
     c@+  8 lshift  swap
     c@+ 16 lshift  swap
@@ -22,22 +22,22 @@
     c@  56 lshift
     or or or or or or or ;
 
-: 9p-s@ ( a -> a u )    dup 2 +  swap be2@ ;
+: 9p-s@ ( a -> a u )    dup 2 +  swap le2@ ;
 
-: be1! ( n a -> )    c! ;
+: le1! ( n a -> )    c! ;
 
-: be2! ( n a -> )
+: le2! ( n a -> )
     over swap  c!+
     swap 8 rshift
     swap c! ;
 
-: be4! ( n a -> )
+: le4! ( n a -> )
     over >r  c!+
     r@ 08 rshift  swap c!+
     r@ 16 rshift  swap c!+
     r> 24 rshift  swap c! ;
 
-: be8! ( n a -> )
+: le8! ( n a -> )
     over >r  c!+
     r@ 08 rshift  swap c!+
     r@ 16 rshift  swap c!+
@@ -47,7 +47,7 @@
     r@ 48 rshift  swap c!+
     r> 56 rshift  swap c! ;
 
-: 9p-s! ( src u dst -> )    2dup be2!  2 + swap move ;
+: 9p-s! ( src u dst -> )    2dup le2!  2 + swap move ;
 : 9p-s, ( src u dst -> )    over 2 + allot  9p-s! ;
 
 ( Transmission/reception buffers )
@@ -59,10 +59,10 @@ create tx# 0 ,
 : txcur ( -> a )    txbuf tx# @ + ;
 : tx+ ( n -> )      tx# +! ;
 
-: tx1! ( n -> )    txcur be1!  1 tx+ ;
-: tx2! ( n -> )    txcur be2!  2 tx+ ;
-: tx4! ( n -> )    txcur be4!  4 tx+ ;
-: tx8! ( n -> )    txcur be8!  8 tx+ ;
+: tx1! ( n -> )    txcur le1!  1 tx+ ;
+: tx2! ( n -> )    txcur le2!  2 tx+ ;
+: tx4! ( n -> )    txcur le4!  4 tx+ ;
+: tx8! ( n -> )    txcur le8!  8 tx+ ;
 
 : txs! ( a u -> )    dup >r  txcur 9p-s!  r> 2 +  tx+ ;
 : >tx ( a u -> )    tuck  >r txcur r> move  tx+ ;
@@ -74,10 +74,10 @@ create rx# 0 ,
 : rxcur ( -> a )    rxbuf rx# @ + ;
 : rx+ ( n -> )      rx# +! ;
 
-: rx1@ ( -> n )    rxcur be1@  1 rx+ ;
-: rx2@ ( -> n )    rxcur be2@  2 rx+ ;
-: rx4@ ( -> n )    rxcur be4@  4 rx+ ;
-: rx8@ ( -> n )    rxcur be8@  8 rx+ ;
+: rx1@ ( -> n )    rxcur le1@  1 rx+ ;
+: rx2@ ( -> n )    rxcur le2@  2 rx+ ;
+: rx4@ ( -> n )    rxcur le4@  4 rx+ ;
+: rx8@ ( -> n )    rxcur le8@  8 rx+ ;
 
 : rxs@ ( -> a u )    rxcur 9p-s@  dup 2 + rx+ ;
 
@@ -99,7 +99,7 @@ create curfid 0 ,
     curfid ! ;
 
 : tx[ ( type -> )   4 tx# !  tx1!  tag tx2! ;
-: ]tx ( -> a u )    tx# @  txbuf be4!  txbuf tx# @ ;
+: ]tx ( -> a u )    tx# @  txbuf le4!  txbuf tx# @ ;
 
 struct
     1 1 field qid-type
@@ -131,7 +131,7 @@ stat-base% nip constant /stat-base
 
 : set-stat-size ( 'stat -> size )
     dup  get-stat-size   dup >r
-    swap stat-size be2!  r> ;
+    swap stat-size le2!  r> ;
 
 : stat>tx ( 'stat -> )    dup set-stat-size  2 +  dup tx2!  >tx ;
 
@@ -140,9 +140,9 @@ stat-base% nip constant /stat-base
 
 
 \ Addresses valid for every R-message
-: 9p-size@ ( a -> msg-size )    be4@ ;
-: 9p-type@ ( a -> msg-type )    4 + be1@ ;
-: 9p-tag@  ( a -> msg-tag )     5 + be2@ ;
+: 9p-size@ ( a -> msg-size )    le4@ ;
+: 9p-type@ ( a -> msg-type )    4 + le1@ ;
+: 9p-tag@  ( a -> msg-tag )     5 + le2@ ;
 : 9p-body ( a -> 'msg-body )    7 + ;
 
 \ Error on short reads or wrong response type
@@ -156,7 +156,7 @@ stat-base% nip constant /stat-base
     101 rxerror? if  0 0 0 exit  then
     rxbuf 9p-body  dup >r
     4 + 9p-s@
-    r> be4@ ;
+    r> le4@ ;
 
 : Tattach ( 'uname n1 'aname n2 -> rootfid a u )
     104 tx[
@@ -188,7 +188,7 @@ stat-base% nip constant /stat-base
 
 : Rwalk ( msg->size -> 'qids #qids )
     111 rxerror? if  0 -1 exit  then
-    rxbuf 9p-body  dup 2 +  swap be2@ ;
+    rxbuf 9p-body  dup 2 +  swap le2@ ;
 
 : Topen ( fid mode -> a u )
     112 tx[
@@ -203,7 +203,7 @@ stat-base% nip constant /stat-base
 
 : Ropencreate ( n type -> 'qid iounit )
     rxerror? if  0 0 exit  then
-    rxbuf 9p-body  dup /qid + be4@ ;
+    rxbuf 9p-body  dup /qid + le4@ ;
 
 : Ropen ( n -> 'qid iounit )      113 Ropencreate ;
 : Rcreate ( n -> 'qid iounit )    115 Ropencreate ;
@@ -216,7 +216,7 @@ stat-base% nip constant /stat-base
 
 : Rread ( n -> data count )
     117 rxerror? if  0 0 exit  then
-    rxbuf 9p-body  dup be4@  swap 4 + swap ;
+    rxbuf 9p-body  dup le4@  swap 4 + swap ;
 
 : Twrite ( fid offset data count -> a u )
     tuck >r >r
@@ -227,7 +227,7 @@ stat-base% nip constant /stat-base
 
 : Rwrite ( n -> count )
     119 rxerror? if  0 exit  then
-    rxbuf 9p-body be4@ ;
+    rxbuf 9p-body le4@ ;
 
 
 : Rminimal ( n type -> )    rxerror? if exit then ;
@@ -244,7 +244,7 @@ stat-base% nip constant /stat-base
 
 : Rstat ( n -> 'stat len )
     125 rxerror? if  0 exit  then
-    rxbuf 9p-body  dup 2 +  swap be2@ ;
+    rxbuf 9p-body  dup 2 +  swap le2@ ;
 
 : Twstat ( 'stat fid -> len )    126 tx[  tx4! stat>tx  ]tx ;
 : Rwstat ( n -> )                127 Rminimal ;
